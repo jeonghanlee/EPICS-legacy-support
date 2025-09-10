@@ -1,0 +1,26 @@
+#
+conf.modules: $(patsubst %, conf.%, $(SRC_NAMES))
+conf.gz.modules: $(patsubst %, conf.gz.%, $(SRC_NAMES))
+conf.modules.show: $(patsubst %, conf.%.show, $(SRC_NAMES))
+
+conf.pyDevSup: patch.pyDevSup
+	@echo "EPICS_BASE:=$(INSTALL_LOCATION)"                    > $(TOP)/$(filter $(patsubst conf.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/RELEASE.local
+	@echo "CHECK_RELEASE = NO"                                 > $(TOP)/$(filter $(patsubst conf.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+	@echo "PROD_LDFLAGS += -Wl,--enable-new-dtags"            >> $(TOP)/$(filter $(patsubst conf.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+	@echo "INSTALL_LOCATION:=$(INSTALL_LOCATION_PYDEVSUP)"    >> $(TOP)/$(filter $(patsubst conf.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+	@echo "PYTHON:=python3"                                   >> $(TOP)/$(filter $(patsubst conf.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+	@$(PYTHON_CMD) $(TOP)/$(SRC_PATH_PYDEVSUP)/makehelper.py  >> $(TOP)/$(filter $(patsubst conf.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+
+conf.gz.pyDevSup: conf.pyDevSup
+	$(QUIET)echo "USR_CFLAGS   += -g0 -gz=zlib" >> $(TOP)/$(filter $(patsubst conf.gz.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+	$(QUIET)echo "USR_CXXFLAGS += -g0 -gz=zlib" >> $(TOP)/$(filter $(patsubst conf.gz.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+	$(QUIET)echo "USR_LDFLAGS  += -g0 -gz=zlib" >> $(TOP)/$(filter $(patsubst conf.gz.%, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+
+patch.pyDevSup:
+
+conf.pyDevSup.show:
+	@echo ""
+	@echo ">>>>>>> conf.show $(TOP)/$(filter $(patsubst conf.%.show, %, $@)-src, $(SRC_PATH_MODULES))"
+	cat -b  $(TOP)/$(filter $(patsubst conf.%.show, %, $@)-src, $(SRC_PATH_MODULES))/configure/RELEASE.local
+	cat -b  $(TOP)/$(filter $(patsubst conf.%.show, %, $@)-src, $(SRC_PATH_MODULES))/configure/CONFIG_SITE.local
+

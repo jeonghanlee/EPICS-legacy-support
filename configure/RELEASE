@@ -1,0 +1,13 @@
+
+## Where the Source repository SRC_URL/SRC_NAME
+#SRC_URL_BASE:=https://github.com/epics-base
+SRC_URL:=https://github.com/jeonghanlee
+
+# https://github.com/jeonghanlee/pyDevSup
+# 2024-08-31
+SRC_NAME_PYDEVSUP:=pyDevSup
+SRC_TAG_PYDEVSUP:=796f7d7
+SRC_VER_PYDEVSUP:=$(SRC_TAG_PYDEVSUP)
+
+-include $(TOP)/../RELEASE.local
+-include $(TOP)/configure/RELEASE.local

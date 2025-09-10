@@ -1,0 +1,44 @@
+#
+.DEFAULT_GOAL := vars
+
+.PHONY: default init distclean deinit
+
+default: vars
+
+.PHONY: init clone update deinit distclean
+
+## Clone Source
+init: clone
+
+# gitclone use '-C' option, so git version should be more than 1.8.5. CentOS7 git is imcompatiable.
+#
+clone: clone.modules
+
+conf: conf.modules
+
+conf.gz: conf.gz.modules
+
+conf.show: conf.modules.show
+
+deinit: distclean
+
+## Clean Source
+distclean: distclean.modules
+	-rm -f $(TOP)/*.local
+	-rm -f $(TOP)/configure/*.local
+
+deinit: distclean
+
+build: conf build.modules
+
+build.gz: conf.gz build.modules
+
+distclean: distclean.modules distclean.modulesgen
+
+distclean.modulesgen:
+	-rm -rf $(TOP)/configure/MODULESGEN.mk
+
+symlinks: symlinks.modules
+
+null:
+	@echo ""

@@ -1,0 +1,60 @@
+#
+#
+QUIET=@
+
+INSTALL:=install
+INSTALL_PROGRAM:=$(INSTALL)
+INSTALL_DATA:=$(INSTALL) -m 644
+INSTALL_755:=$(INSTALL) -m 755
+
+# IF INSTALL_LOCATIOIN/.. is not WRITABLE, SUDO and SUDOBASH should be used
+# SUDO_INFO 1 : SUDO is needed (NOT writable)
+# SUDO_INFO 0 : SUDO is not needed
+
+SUDO_INFO = $(shell test -w $(INSTALL_LOCATION_EPICS) 1>&2 2> /dev/null; echo $$?)
+
+SUDO_CMD := $(shell which sudo)
+
+# For CentOS, devtoolset-{7,8} has -E option within sudo shell
+# So we have to remove -E option as well if we would like to use devtoolset
+#
+ifeq "$(SUDO_INFO)" "1"
+SUDO = $(SUDO_CMD)
+SUDOBASH := $(SUDO) -E bash -c
+else
+SUDO :=
+SUDOBASH = bash -c
+endif
+
+
+ifeq ($(UNAME_S),Darwin)
+OS_VERSION:=$(strip $(shell sw_vers -productVersion))
+OS_NAME:=$(strip $(shell sw_vers -productName))
+endif
+ifeq ($(UNAME_S),Linux)
+OS_VERSION:=$(strip $(shell grep -Po '^VERSION_ID=\K[^d].+' /etc/os-release | sed 's/\"//g'))
+OS_NAME:=$(strip $(shell grep -Po '^ID=\K[^S].+' /etc/os-release | sed 's/\"//g'))
+endif
+
+ifeq ($(strip $(OS_VERSION)),)
+OS_VERSION:=unknownVER
+endif
+
+ifeq ($(strip $(OS_NAME)),)
+OS_VERSION:=unknownOS
+endif
+
+PATH_NANE_MODULES:=modules
+INSTALL_LOCATION_MODS:=$(INSTALL_LOCATION)/../$(PATH_NANE_MODULES)
+
+# INSTALL_LOCATION in EPICS-env-support is INSTALL_LOCATION_BASE in EPICS-env
+DO_MAKE=make LINKER_USE_RPATH=$(LINKER_USE_RPATH) LINKER_ORIGIN_ROOT="$(INSTALL_LOCATION_EPICS)"
+
+
+VARS_EXCLUDES+=SRC_PATH_INFO
+VARS_EXCLUDES+=INSTALL
+VARS_EXCLUDES+=INSTALL_PROGRAM
+VARS_EXCLUDES+=INSTALL_DATA
+VARS_EXCLUDES+=SUDOBASH
+VARS_EXCLUDES+=INSTALL_755
+
